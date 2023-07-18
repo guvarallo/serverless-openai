@@ -386,6 +386,7 @@
           "event": "success"
         },
         {
+          "next": "erro",
           "event": "failed"
         }
       ],
@@ -583,6 +584,7 @@
           "event": "success"
         },
         {
+          "next": "erro",
           "event": "failed"
         }
       ],
@@ -760,6 +762,7 @@
           "event": "success"
         },
         {
+          "next": "erro",
           "event": "fail"
         }
       ],
@@ -782,6 +785,29 @@
           }
         ],
         "url": "https://serverless-send-content-api-6745-dev.twil.io/send-content-api"
+      }
+    },
+    {
+      "name": "erro",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1630,
+          "y": 1790
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Ocorreu algum problema, tente novamente mais tarde."
       }
     }
   ],
