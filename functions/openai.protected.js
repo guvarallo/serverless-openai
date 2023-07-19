@@ -2,36 +2,16 @@ const { Configuration, OpenAIApi } = require('openai')
 
 exports.handler = async function (context, event, callback) {
   const apiKey = context.OPEN_AI_KEY
-  const client = context.getTwilioClient()
-  const twilioNumber = context.TWILIO_WHATSAPP_NUMBER
-
   const configuration = new Configuration({ apiKey })
   const openai = new OpenAIApi(configuration)
 
-  const { message, sentiment, customerNumber } = event
-
-  const isSentiment = sentiment === 'true' ? true : false
+  const { message, systemContent } = event
 
   const executeAI = async () => {
-    const sentimentMessage =
-      'Vou te dar uma mensagem, e seu trabalho será classificar se o sentimento da mensagem é: Positivo, neutro ou negativo.'
-
-    const normalMessage = 'Resuma em um único parágrafo:'
-
-    const contentMessage = isSentiment ? sentimentMessage : normalMessage
-
-    if (!isSentiment) {
-      await client.messages.create({
-        from: twilioNumber,
-        body: 'Aguarde um momento enquanto pesquiso sua resposta...',
-        to: customerNumber
-      })
-    }
-
     const completion = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-3.5-turbo-16k',
       messages: [
-        { role: 'system', content: contentMessage },
+        { role: 'system', content: systemContent },
         { role: 'user', content: message }
       ],
       temperature: 1,
@@ -43,14 +23,6 @@ exports.handler = async function (context, event, callback) {
 
   try {
     const content = await executeAI()
-
-    if (!isSentiment) {
-      await client.messages.create({
-        from: twilioNumber,
-        body: content,
-        to: customerNumber
-      })
-    }
 
     return callback(null, { content })
   } catch (error) {
