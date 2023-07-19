@@ -10,7 +10,7 @@
           "event": "incomingMessage"
         },
         {
-          "next": "call-variables",
+          "next": "call-to-whats-subflow",
           "event": "incomingCall"
         },
         {
@@ -28,80 +28,6 @@
           "x": -150,
           "y": -80
         }
-      }
-    },
-    {
-      "name": "gather_1",
-      "type": "gather-input-on-call",
-      "transitions": [
-        {
-          "next": "voice-to-wa",
-          "event": "keypress"
-        },
-        {
-          "event": "speech"
-        },
-        {
-          "event": "timeout"
-        }
-      ],
-      "properties": {
-        "voice": "Polly.Camila",
-        "number_of_digits": 1,
-        "speech_timeout": "auto",
-        "offset": {
-          "x": 470,
-          "y": 390
-        },
-        "loop": 1,
-        "finish_on_key": "#",
-        "say": ",,,Olá, bem vindo ao atendimento Twilio! Para continuar esse atendimento via Whats-ápp, favor digitar 0",
-        "language": "pt-BR",
-        "stop_gather": true,
-        "gather_language": "en",
-        "profanity_filter": "true",
-        "timeout": 5
-      }
-    },
-    {
-      "name": "call-variables",
-      "type": "set-variables",
-      "transitions": [
-        {
-          "next": "gather_1",
-          "event": "next"
-        }
-      ],
-      "properties": {
-        "variables": [
-          {
-            "value": "{{trigger.call.From}}",
-            "key": "To"
-          }
-        ],
-        "offset": {
-          "x": 470,
-          "y": 160
-        }
-      }
-    },
-    {
-      "name": "sucess",
-      "type": "say-play",
-      "transitions": [
-        {
-          "event": "audioComplete"
-        }
-      ],
-      "properties": {
-        "voice": "Polly.Camila",
-        "offset": {
-          "x": 320,
-          "y": 890
-        },
-        "loop": 1,
-        "say": "Favor se dirigir ao aplicativo do Whats-ápp para continuar o atendimento... Até já!",
-        "language": "pt-BR"
       }
     },
     {
@@ -139,39 +65,9 @@
       "properties": {
         "input": "{{flow.variables.customerName}}",
         "offset": {
-          "x": -170,
-          "y": 1030
+          "x": -990,
+          "y": 1060
         }
-      }
-    },
-    {
-      "name": "voice-to-wa",
-      "type": "run-function",
-      "transitions": [
-        {
-          "next": "sucess",
-          "event": "success"
-        },
-        {
-          "next": "fail",
-          "event": "fail"
-        }
-      ],
-      "properties": {
-        "service_sid": "ZS89775732c160dd0e8227a04611e25a67",
-        "environment_sid": "ZE6f163b21203f5778e2d79033e038998f",
-        "offset": {
-          "x": 470,
-          "y": 660
-        },
-        "function_sid": "ZHb75c8f44bc1d526ff81a7691d8a7edd8",
-        "parameters": [
-          {
-            "value": "{{flow.variables.To}}",
-            "key": "To"
-          }
-        ],
-        "url": "https://serverless-wa-bot-3397-dev.twil.io/voice-to-wa"
       }
     },
     {
@@ -194,25 +90,6 @@
           "x": -450,
           "y": 550
         }
-      }
-    },
-    {
-      "name": "fail",
-      "type": "say-play",
-      "transitions": [
-        {
-          "event": "audioComplete"
-        }
-      ],
-      "properties": {
-        "voice": "Polly.Camila",
-        "offset": {
-          "x": 710,
-          "y": 880
-        },
-        "loop": 1,
-        "say": "Algo deu errado, favor tentar novamente mais tarde.",
-        "language": "pt-BR"
       }
     },
     {
@@ -239,8 +116,8 @@
       "properties": {
         "input": "{{flow.variables.incoming}}",
         "offset": {
-          "x": -520,
-          "y": 790
+          "x": -1340,
+          "y": 820
         }
       }
     },
@@ -309,8 +186,8 @@
       "properties": {
         "input": "{{flow.variables.customerName}}",
         "offset": {
-          "x": -720,
-          "y": 1020
+          "x": -1540,
+          "y": 1050
         }
       }
     },
@@ -329,8 +206,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 2060
+          "x": -1260,
+          "y": 2100
         },
         "method": "POST",
         "content_type": "application/x-www-form-urlencoded;charset=utf-8",
@@ -395,8 +272,8 @@
       "properties": {
         "input": "{{widgets.fetch-sentiment.parsed.content}}",
         "offset": {
-          "x": -560,
-          "y": 2290
+          "x": -270,
+          "y": 820
         }
       }
     },
@@ -413,8 +290,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -780,
-          "y": 2560
+          "x": -490,
+          "y": 1090
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -436,8 +313,8 @@
       ],
       "properties": {
         "offset": {
-          "x": 0,
-          "y": 2560
+          "x": 290,
+          "y": 1090
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -461,8 +338,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 2790
+          "x": -110,
+          "y": 1320
         },
         "method": "POST",
         "content_type": "application/x-www-form-urlencoded;charset=utf-8",
@@ -526,8 +403,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -920,
-          "y": 1310
+          "x": -1740,
+          "y": 1340
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -553,8 +430,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 1620
+          "x": -1260,
+          "y": 1660
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -577,8 +454,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -610,
-          "y": 1310
+          "x": -1430,
+          "y": 1340
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -601,8 +478,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -290,
-          "y": 1310
+          "x": -1110,
+          "y": 1340
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -625,8 +502,8 @@
       ],
       "properties": {
         "offset": {
-          "x": 40,
-          "y": 1310
+          "x": -780,
+          "y": 1340
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -652,8 +529,8 @@
           }
         ],
         "offset": {
-          "x": -400,
-          "y": 1840
+          "x": -1260,
+          "y": 1880
         }
       }
     },
@@ -694,8 +571,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 2560
+          "x": -110,
+          "y": 1090
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -718,8 +595,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 3020
+          "x": -110,
+          "y": 1550
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -741,8 +618,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -40,
-          "y": 2060
+          "x": -950,
+          "y": 2100
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -764,8 +641,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -70,
-          "y": 2790
+          "x": 200,
+          "y": 1320
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -790,8 +667,8 @@
         "service_sid": "ZSa3abd2a02973d9ae69017c83aad2719f",
         "environment_sid": "ZEca05b400d8b3c1833e852f2344c4ab11",
         "offset": {
-          "x": -400,
-          "y": 3250
+          "x": -110,
+          "y": 1780
         },
         "function_sid": "ZH7966d8f95c50172444f763109b265bce",
         "parameters": [
@@ -824,8 +701,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 3480
+          "x": -110,
+          "y": 2010
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -881,8 +758,8 @@
       "properties": {
         "input": "{{widgets.content-api-choice.inbound.Body}}",
         "offset": {
-          "x": -640,
-          "y": 3720
+          "x": 890,
+          "y": 820
         }
       }
     },
@@ -899,8 +776,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -40,
-          "y": 3960
+          "x": 1490,
+          "y": 1060
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -926,8 +803,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -780,
-          "y": 3960
+          "x": 750,
+          "y": 1060
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -949,8 +826,8 @@
       ],
       "properties": {
         "offset": {
-          "x": -400,
-          "y": 3960
+          "x": 1130,
+          "y": 1060
         },
         "service": "{{trigger.message.InstanceSid}}",
         "channel": "{{trigger.message.ChannelSid}}",
@@ -976,9 +853,30 @@
           }
         ],
         "offset": {
-          "x": -780,
-          "y": 4190
+          "x": 750,
+          "y": 1290
         }
+      }
+    },
+    {
+      "name": "call-to-whats-subflow",
+      "type": "run-subflow",
+      "transitions": [
+        {
+          "event": "completed"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "flow_sid": "FW702be94793638085b49ffbd0e9ce0b27",
+        "flow_revision": "LatestPublished",
+        "offset": {
+          "x": 380,
+          "y": 300
+        },
+        "parameters": []
       }
     }
   ],
