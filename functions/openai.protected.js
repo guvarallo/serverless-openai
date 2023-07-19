@@ -14,7 +14,7 @@ exports.handler = async function (context, event, callback) {
 
   const executeAI = async () => {
     const sentimentMessage =
-      'You will be provided with a message, and your task is to classify its sentiment as positive, neutral, or negative:'
+      'Vou te dar uma mensagem, e seu trabalho será classificar se o sentimento da mensagem é: Positivo, neutro ou negativo.'
 
     const normalMessage = 'Resuma em um único parágrafo:'
 
