@@ -1,0 +1,989 @@
+{
+  "description": "A New Flow",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "incoming-variables",
+          "event": "incomingMessage"
+        },
+        {
+          "next": "call-variables",
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingConversationMessage"
+        },
+        {
+          "event": "incomingRequest"
+        },
+        {
+          "event": "incomingParent"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -150,
+          "y": -80
+        }
+      }
+    },
+    {
+      "name": "gather_1",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "voice-to-wa",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Camila",
+        "number_of_digits": 1,
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 470,
+          "y": 390
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": ",,,Olá, bem vindo ao atendimento Twilio! Para continuar esse atendimento via Whats-ápp, favor digitar 0",
+        "language": "pt-BR",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "call-variables",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "gather_1",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{trigger.call.From}}",
+            "key": "To"
+          }
+        ],
+        "offset": {
+          "x": 470,
+          "y": 160
+        }
+      }
+    },
+    {
+      "name": "sucess",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Camila",
+        "offset": {
+          "x": 320,
+          "y": 890
+        },
+        "loop": 1,
+        "say": "Favor se dirigir ao aplicativo do Whats-ápp para continuar o atendimento... Até já!",
+        "language": "pt-BR"
+      }
+    },
+    {
+      "name": "split-customer-call",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "new-customer-call",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "Is Blank",
+              "arguments": ["{{flow.variables.customerName}}"],
+              "type": "is_blank",
+              "value": "Is Blank"
+            }
+          ]
+        },
+        {
+          "next": "existing-customer-call",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "Not Blank",
+              "arguments": ["{{flow.variables.customerName}}"],
+              "type": "is_not_blank",
+              "value": "Is Not Blank"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.customerName}}",
+        "offset": {
+          "x": -170,
+          "y": 1030
+        }
+      }
+    },
+    {
+      "name": "voice-to-wa",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "sucess",
+          "event": "success"
+        },
+        {
+          "next": "fail",
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZS89775732c160dd0e8227a04611e25a67",
+        "environment_sid": "ZE6f163b21203f5778e2d79033e038998f",
+        "offset": {
+          "x": 470,
+          "y": 660
+        },
+        "function_sid": "ZHb75c8f44bc1d526ff81a7691d8a7edd8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.To}}",
+            "key": "To"
+          }
+        ],
+        "url": "https://serverless-wa-bot-3397-dev.twil.io/voice-to-wa"
+      }
+    },
+    {
+      "name": "set-customer-variable",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "split_1",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{widgets.get-customer.parsed.customer}}",
+            "key": "customerName"
+          }
+        ],
+        "offset": {
+          "x": -450,
+          "y": 550
+        }
+      }
+    },
+    {
+      "name": "fail",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Camila",
+        "offset": {
+          "x": 710,
+          "y": 880
+        },
+        "loop": 1,
+        "say": "Algo deu errado, favor tentar novamente mais tarde.",
+        "language": "pt-BR"
+      }
+    },
+    {
+      "name": "split_1",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "split-customer-message",
+          "event": "noMatch"
+        },
+        {
+          "next": "split-customer-call",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value matches_any_of Suporte,Vendas,Financeiro",
+              "arguments": ["{{flow.variables.incoming}}"],
+              "type": "matches_any_of",
+              "value": "Suporte,Vendas,Financeiro"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.incoming}}",
+        "offset": {
+          "x": -520,
+          "y": 790
+        }
+      }
+    },
+    {
+      "name": "incoming-variables",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "get-customer",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{trigger.message.Body}}",
+            "key": "incoming"
+          },
+          {
+            "value": "{{trigger.message.From}}",
+            "key": "customerNumber"
+          },
+          {
+            "value": "{{trigger.message.ProfileName}}",
+            "key": "profileName"
+          }
+        ],
+        "offset": {
+          "x": -450,
+          "y": 90
+        }
+      }
+    },
+    {
+      "name": "split-customer-message",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "new-customer-message",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "Is Blank",
+              "arguments": ["{{flow.variables.customerName}}"],
+              "type": "is_blank",
+              "value": "Is Blank"
+            }
+          ]
+        },
+        {
+          "next": "existing-customer-message",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "Not Blank",
+              "arguments": ["{{flow.variables.customerName}}"],
+              "type": "is_not_blank",
+              "value": "Is Not Blank"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{flow.variables.customerName}}",
+        "offset": {
+          "x": -720,
+          "y": 1020
+        }
+      }
+    },
+    {
+      "name": "fetch-sentiment",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "split_2",
+          "event": "success"
+        },
+        {
+          "next": "error-fetch-sentiment",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 2060
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.message}}",
+            "key": "message"
+          },
+          {
+            "value": "Vou te dar uma mensagem, e seu trabalho será classificar se o sentimento da mensagem em uma só palavra: Positivo, neutro ou negativo.",
+            "key": "systemContent"
+          }
+        ],
+        "url": "https://serverless-openai-2631-dev.twil.io/openai"
+      }
+    },
+    {
+      "name": "split_2",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "neutral",
+          "event": "noMatch"
+        },
+        {
+          "next": "negative",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal to negativo",
+              "arguments": ["{{widgets.fetch-sentiment.parsed.content}}"],
+              "type": "equal_to",
+              "value": "negativo"
+            }
+          ]
+        },
+        {
+          "next": "neutral",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal to neutro",
+              "arguments": ["{{widgets.fetch-sentiment.parsed.content}}"],
+              "type": "equal_to",
+              "value": "neutro"
+            }
+          ]
+        },
+        {
+          "next": "positive",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal to positivo",
+              "arguments": ["{{widgets.fetch-sentiment.parsed.content}}"],
+              "type": "equal_to",
+              "value": "positivo"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.fetch-sentiment.parsed.content}}",
+        "offset": {
+          "x": -560,
+          "y": 2290
+        }
+      }
+    },
+    {
+      "name": "negative",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -780,
+          "y": 2560
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Sinto muito pelo seu transtorno. Vou lhe transferir agora mesmo para seu agente exclusivo. Por favor, aguarde um instante."
+      }
+    },
+    {
+      "name": "positive",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 0,
+          "y": 2560
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Fico feliz com sua mensagem, tenha um ótimo dia!"
+      }
+    },
+    {
+      "name": "fetch-prompt",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "ai-prompt",
+          "event": "success"
+        },
+        {
+          "next": "error-fetch-prompt",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 2790
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.message}}",
+            "key": "message"
+          },
+          {
+            "value": "Resuma em um único parágrafo:",
+            "key": "systemContent"
+          }
+        ],
+        "url": "https://serverless-openai-2631-dev.twil.io/openai"
+      }
+    },
+    {
+      "name": "get-customer",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "set-customer-variable",
+          "event": "success"
+        },
+        {
+          "next": "error-get-customer",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -450,
+          "y": 300
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{flow.variables.customerNumber}}",
+            "key": "customerNumber"
+          },
+          {
+            "value": "{{flow.variables.profileName}}",
+            "key": "profileName"
+          }
+        ],
+        "url": "https://serverless-airtable-customers-3998-dev.twil.io/get-customer-by-number"
+      }
+    },
+    {
+      "name": "new-customer-message",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "gather-issue",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -920,
+          "y": 1310
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Olá {{flow.variables.profileName}}! Vejo que é sua primeira vez conosco, seja muito bem vindo(a) ao atendimento Twilio!"
+      }
+    },
+    {
+      "name": "gather-issue",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "set-message-1",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 1620
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Só antes de continuarmos, você poderia digitar em poucas palavras no que podemos lhe ajudar hoje?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "existing-customer-message",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "gather-issue",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -610,
+          "y": 1310
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Bem vindo(a) de volta {{flow.variables.customerName}}!"
+      }
+    },
+    {
+      "name": "new-customer-call",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "gather-issue",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -290,
+          "y": 1310
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Olá {{flow.variables.profileName}}! Vejo que é sua primeira vez conosco, seja muito bem vindo(a) ao atendimento Twilio! Já vou tratar sobre sua escolha - {{flow.variables.incoming}}."
+      }
+    },
+    {
+      "name": "existing-customer-call",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "gather-issue",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 40,
+          "y": 1310
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Bem vindo(a) de volta {{flow.variables.customerName}}! Já vou tratar sobre sua escolha - {{flow.variables.incoming}}."
+      }
+    },
+    {
+      "name": "set-message-1",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "fetch-sentiment",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{widgets.gather-issue.inbound.Body}}",
+            "key": "message"
+          }
+        ],
+        "offset": {
+          "x": -400,
+          "y": 1840
+        }
+      }
+    },
+    {
+      "name": "error-get-customer",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -90,
+          "y": 300
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Ocorreu algum problema, tente novamente mais tarde."
+      }
+    },
+    {
+      "name": "neutral",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "fetch-prompt",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 2560
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Certo, aguarde um momento enquanto pesquiso sua resposta..."
+      }
+    },
+    {
+      "name": "ai-prompt",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "send-content-api",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 3020
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{widgets.fetch-prompt.parsed.content}}"
+      }
+    },
+    {
+      "name": "error-fetch-sentiment",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -40,
+          "y": 2060
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Ocorreu algum problema, tente novamente mais tarde."
+      }
+    },
+    {
+      "name": "error-fetch-prompt",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -70,
+          "y": 2790
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "A inteligência artificial encontrou algum problema. Tente novamente mais tarde"
+      }
+    },
+    {
+      "name": "send-content-api",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "content-api-choice",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "ZSa3abd2a02973d9ae69017c83aad2719f",
+        "environment_sid": "ZEca05b400d8b3c1833e852f2344c4ab11",
+        "offset": {
+          "x": -400,
+          "y": 3250
+        },
+        "function_sid": "ZH7966d8f95c50172444f763109b265bce",
+        "parameters": [
+          {
+            "value": "HX79b097a4b26c6fe4f42392e399921b0a",
+            "key": "contentSid"
+          },
+          {
+            "value": "{{flow.variables.customerNumber}}",
+            "key": "customerNumber"
+          }
+        ],
+        "url": "https://serverless-send-content-api-6745-dev.twil.io/send-content-api"
+      }
+    },
+    {
+      "name": "content-api-choice",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "split_3",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 3480
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Escolha uma opção acima ☝️",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "split_3",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "question",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Refazer a pergunta",
+              "arguments": ["{{widgets.content-api-choice.inbound.Body}}"],
+              "type": "equal_to",
+              "value": "Refazer a pergunta"
+            }
+          ]
+        },
+        {
+          "next": "agent",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Falar com um agente",
+              "arguments": ["{{widgets.content-api-choice.inbound.Body}}"],
+              "type": "equal_to",
+              "value": "Falar com um agente"
+            }
+          ]
+        },
+        {
+          "next": "satisfied",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Estou satisfeito",
+              "arguments": ["{{widgets.content-api-choice.inbound.Body}}"],
+              "type": "equal_to",
+              "value": "Estou satisfeito"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.content-api-choice.inbound.Body}}",
+        "offset": {
+          "x": -640,
+          "y": 3720
+        }
+      }
+    },
+    {
+      "name": "satisfied",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -40,
+          "y": 3960
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Perfeito, fico feliz em lhe atender hoje, até a próxima!"
+      }
+    },
+    {
+      "name": "question",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "set-message-2",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -780,
+          "y": 3960
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Entendi. Por favor, tente refazer sua pergunta com outras palavras. Pode digitar:",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "agent",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -400,
+          "y": 3960
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Combinado, vou lhe transferir para seu agente exclusivo, aguarde um instante."
+      }
+    },
+    {
+      "name": "set-message-2",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "fetch-sentiment",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "{{widgets.question.inbound.Body}}",
+            "key": "message"
+          }
+        ],
+        "offset": {
+          "x": -780,
+          "y": 4190
+        }
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}
